@@ -1,6 +1,6 @@
 const Mongoose = require('mongoose');
 
-module.exports = Mongoose.model('search', new Mongoose.Schema({
+module.exports = Mongoose.model('Search', new Mongoose.Schema({
   searchstring: { type: String, required: true },
 }, {
   toJSON: {

@@ -18,7 +18,7 @@
   <body>
     <ul id="names"></ul>
     <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
+      <input id="input" autocomplete="off" /><button>Submit</button>
     </form>
     <script src="/socket.io/socket.io.js"></script>
 
@@ -29,19 +29,24 @@
       const form = document.getElementById('form');
       const input = document.getElementById('input');
 
-      input.addEventListener('input', updateValue);
-      // ** do this: when the user types a letter add the letter to a varaible and if its backspaced then delete 1 from the string
-      const log = document.getElementById('values');
+      // input.addEventListener('input', updateValue);
+      // // ** do this: when the user types a letter add the letter to a varaible and if its backspaced then delete 1 from the string
+      // const log = document.getElementById('values');
 
       function updateValue(e) {
         log.textContent = e.target.value;
       }
 
-      // event listener for clicking the submit button and checking if there is something in it
+      input.addEventListener('keydown', function(e) {
+        if (input.value) {
+          socket.emit('search', input.value);
+        }
+      });
+
       form.addEventListener('submit', function(e) {
         e.preventDefault();
         if (input.value) {
-          socket.emit('search', input.value);
+          socket.emit('search submitted', input.value);
           input.value = '';
         }
       });
