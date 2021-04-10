@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Socket.IO chat</title>
+    <title>Search Auto-completer</title>
     <style>
       body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
@@ -29,6 +29,15 @@
       const form = document.getElementById('form');
       const input = document.getElementById('input');
 
+      input.addEventListener('input', updateValue);
+      // ** do this: when the user types a letter add the letter to a varaible and if its backspaced then delete 1 from the string
+      const log = document.getElementById('values');
+
+      function updateValue(e) {
+        log.textContent = e.target.value;
+      }
+
+      // event listener for clicking the submit button and checking if there is something in it
       form.addEventListener('submit', function(e) {
         e.preventDefault();
         if (input.value) {
@@ -41,7 +50,14 @@
         const item = document.createElement('li');
         item.textContent = msg;
         names.appendChild(item);
-        // window.scrollTo(0, document.body.scrollHeight);
+        window.scrollTo(0, document.body.scrollHeight);
+        // request = {
+        //   method : 'POST',
+        //   body: {
+        //     "searchstring" : item
+        //   }
+        // }
+        // fetch('/', request);
       });
     </script>
   </body>

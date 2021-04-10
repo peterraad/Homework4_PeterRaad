@@ -1,17 +1,24 @@
 require('dotenv').config();
-const Express = require('express');
 const BodyParser = require('body-parser');
 const Mongoose = require('mongoose');
 
-const ProductRoutes = require('../routes/productroutes');
-const UserRoutes = require('../routes/searchroutes');
+const app = require('express')();
+const http = require('http').Server(app);
 
-const app = Express();
+const io = require('socket.io')(http);
 
-app.use(BodyParser.json());
+const SearchRoutes = require('../routes/searchroutes');
 
-app.use('/products', ProductRoutes);
-app.use('/users', UserRoutes);
+app.post('/', SearchRoutes);
+app.get('/', (req, res) => {
+  res.sendFile('index.html', { root: '.' });
+});
+io.on('connection', (socket) => {
+  socket.on('search', (msg) => {
+    io.emit('search', msg);
+  });
+});
+
 (async () => {
   try {
     await Mongoose.connect(process.env.SERVER_SECRET, {
@@ -23,5 +30,8 @@ app.use('/users', UserRoutes);
   } catch (error) {
     throw Error('While connecting to database.');
   }
-  app.listen(process.env.PORT);
+  // app.listen(process.env.PORT);
 })();
+http.listen(process.env.PORT, () => {
+  console.log(`Socket.IO server running at http://localhost:${process.env.PORT}/`);
+});
