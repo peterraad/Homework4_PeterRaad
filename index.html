@@ -37,7 +37,7 @@
         log.textContent = e.target.value;
       }
 
-      input.addEventListener('keydown', function(e) {
+      input.addEventListener('keyup', function(e) {
         if (input.value) {
           socket.emit('search', input.value);
         }
