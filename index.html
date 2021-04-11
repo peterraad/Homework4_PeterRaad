@@ -52,17 +52,8 @@
       });
 
       socket.on('search', function(msg) {
-        const item = document.createElement('li');
-        item.textContent = msg;
-        names.appendChild(item);
+       
         window.scrollTo(0, document.body.scrollHeight);
-        // request = {
-        //   method : 'POST',
-        //   body: {
-        //     "searchstring" : item
-        //   }
-        // }
-        // fetch('/', request);
       });
     </script>
   </body>

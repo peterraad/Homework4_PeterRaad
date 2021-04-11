@@ -14,9 +14,17 @@ app.post('/', SearchRoutes);
 app.get('/', (req, res) => {
   res.sendFile('index.html', { root: '.' });
 });
+
+// you can move the database operations to the service file
 const CreateSearchString = async (body) => {
   await new SearchModel(body).save();
 };
+
+// you can move the database operations to the service file
+const SearchForAutoComplete = async (searchString) => SearchModel.find({ searchstring: new RegExp(`^${searchString}`, 'i') }, { searchString: 1 }, (err, result) => {
+  if (err) throw Error(err);
+});
+
 io.on('connection', (socket) => {
   socket.on('search submitted', (searchString) => {
     console.log(searchString);
@@ -24,11 +32,20 @@ io.on('connection', (socket) => {
     const stringObject = {
       searchstring: searchString,
     };
-    CreateSearchString(stringObject);
-    // emit the list of query results
+    CreateSearchString(stringObject).catch((error) => {
+      throw Error(error);
+    });
   });
-  socket.on('search', (searchString) => {
+  socket.on('search', async (searchString) => {
     console.log(searchString);
+    // SearchForAutoComplete(searchString);
+    const result = await SearchForAutoComplete(searchString).catch((error) => {
+      throw Error(error);
+    });
+    console.log(result);
+    socket.emit('search', await SearchForAutoComplete(searchString).catch((error) => {
+      throw Error(error);
+    }));
   });
 });
 
