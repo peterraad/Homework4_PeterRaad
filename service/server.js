@@ -1,5 +1,4 @@
 require('dotenv').config();
-const BodyParser = require('body-parser');
 const Mongoose = require('mongoose');
 const app = require('express')();
 const http = require('http').Server(app);
@@ -7,10 +6,6 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const SearchModel = require('../models/search');
 
-const SearchRoutes = require('../routes/searchroutes');
-
-app.use(BodyParser.json());
-app.post('/', SearchRoutes);
 app.get('/', (req, res) => {
   res.sendFile('index.html', { root: '.' });
 });
