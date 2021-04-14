@@ -14,7 +14,7 @@
       #names > li { padding: 0.5rem 1rem; }
       #names > li:nth-child(odd) { background: #efefef; }
     </style>
-  </head>
+  </head>0
   <body>
     <ul id="names"></ul>
     <form id="form" action="">
@@ -28,14 +28,6 @@
       const names = document.getElementById('names');
       const form = document.getElementById('form');
       const input = document.getElementById('input');
-
-      // input.addEventListener('input', updateValue);
-      // // ** do this: when the user types a letter add the letter to a varaible and if its backspaced then delete 1 from the string
-      // const log = document.getElementById('values');
-
-      function updateValue(e) {
-        log.textContent = e.target.value;
-      }
 
       input.addEventListener('keyup', function(e) {
         if (input.value) {
@@ -51,9 +43,15 @@
         }
       });
 
-      socket.on('search', function(msg) {
-       
-        window.scrollTo(0, document.body.scrollHeight);
+      socket.on('search', function(autocompleteList) {
+        while (names.firstChild) {
+          names.removeChild(names.firstChild)
+        }
+        autocompleteList.forEach(result => {
+          const listElement = document.createElement('li');
+          listElement.textContent = result;
+          names.appendChild(listElement);
+        });
       });
     </script>
   </body>

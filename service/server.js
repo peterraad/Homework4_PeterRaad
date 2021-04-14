@@ -16,14 +16,24 @@ app.get('/', (req, res) => {
 });
 
 // you can move the database operations to the service file
-const CreateSearchString = async (body) => {
-  await new SearchModel(body).save();
-};
+const SearchForAutoComplete = async (searchString) => SearchModel.find({ searchstring: new RegExp(`${searchString}`, 'i') });
 
 // you can move the database operations to the service file
-const SearchForAutoComplete = async (searchString) => SearchModel.find({ searchstring: new RegExp(`^${searchString}`, 'i') }, { searchString: 1 }, (err, result) => {
-  if (err) throw Error(err);
-});
+const CreateSearchString = async (stringObject, text) => {
+  const result = await SearchForAutoComplete(text).catch((error) => {
+    throw Error(error);
+  });
+  const autocompleteList = result.map((thing) => thing.searchstring);
+  let stringInDatabase = null;
+  autocompleteList.forEach((resultString) => {
+    if (resultString === text) {
+      stringInDatabase = resultString;
+    }
+  });
+  if (!stringInDatabase) {
+    await new SearchModel(stringObject).save();
+  }
+};
 
 io.on('connection', (socket) => {
   socket.on('search submitted', (searchString) => {
@@ -32,20 +42,16 @@ io.on('connection', (socket) => {
     const stringObject = {
       searchstring: searchString,
     };
-    CreateSearchString(stringObject).catch((error) => {
+    CreateSearchString(stringObject, searchString).catch((error) => {
       throw Error(error);
     });
   });
   socket.on('search', async (searchString) => {
-    console.log(searchString);
-    // SearchForAutoComplete(searchString);
     const result = await SearchForAutoComplete(searchString).catch((error) => {
       throw Error(error);
     });
-    console.log(result);
-    socket.emit('search', await SearchForAutoComplete(searchString).catch((error) => {
-      throw Error(error);
-    }));
+    const autocompleteList = result.map((thing) => thing.searchstring);
+    socket.emit('search', autocompleteList);
   });
 });
 
