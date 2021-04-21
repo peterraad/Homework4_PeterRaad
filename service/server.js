@@ -10,34 +10,21 @@ app.get('/', (req, res) => {
   res.sendFile('index.html', { root: '.' });
 });
 
-// you can move the database operations to the service file
 const SearchForAutoComplete = async (searchString) => SearchModel.find({ searchstring: new RegExp(`${searchString}`, 'i') });
 
-// you can move the database operations to the service file
-const CreateSearchString = async (stringObject, text) => {
-  const result = await SearchForAutoComplete(text).catch((error) => {
-    throw Error(error);
+const CreateSearchString = async (stringObject) => {
+  await new SearchModel(stringObject).save().catch((error) => {
+    throw Error(`${error} Something went wrong saving the string to the database. 
+    You may be trying to save an existing string`);
   });
-  const autocompleteList = result.map((thing) => thing.searchstring);
-  let stringInDatabase = null;
-  autocompleteList.forEach((resultString) => {
-    if (resultString === text) {
-      stringInDatabase = resultString;
-    }
-  });
-  if (!stringInDatabase) {
-    await new SearchModel(stringObject).save();
-  }
 };
 
 io.on('connection', (socket) => {
   socket.on('search submitted', (searchString) => {
-    console.log(searchString);
-    // io.emit('search', searchString);
     const stringObject = {
       searchstring: searchString,
     };
-    CreateSearchString(stringObject, searchString).catch((error) => {
+    CreateSearchString(stringObject).catch((error) => {
       throw Error(error);
     });
   });
@@ -61,8 +48,5 @@ io.on('connection', (socket) => {
   } catch (error) {
     throw Error('While connecting to database.');
   }
-  // app.listen(process.env.PORT);
 })();
-http.listen(process.env.PORT, () => {
-  console.log(`Socket.IO server running at http://localhost:${process.env.PORT}/`);
-});
+http.listen(process.env.PORT);
